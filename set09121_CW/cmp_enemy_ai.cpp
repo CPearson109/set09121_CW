@@ -1,59 +1,59 @@
 #include "cmp_enemy_ai.h"
 #include "LevelSystem.h"
+#include "pacman.h"
 #include <SFML/System/Vector2.hpp>
-#include <cstdlib>
+#include <cmath>
+#include <iostream>
 
 using namespace sf;
 
-static const Vector2i directions[] = { {1, 0}, {0, 1}, {0, -1}, {-1, 0} };
+// Constructor
+EnemyAIComponent::EnemyAIComponent(Entity* p, Entity& player)
+    : ActorMovementComponent(p), _player(player) {}
 
-EnemyAIComponent::EnemyAIComponent(Entity* p, const sf::Vector2f& direction)
-    : ActorMovementComponent(p), _direction(direction), _state(ROAMING) {}
-
+// Update method
 void EnemyAIComponent::update(double dt) {
     const auto mva = (float)(dt * _speed);
     const Vector2f pos = _parent->getPosition();
-    const Vector2f newpos = pos + _direction * mva;
-    const Vector2i baddir = -1 * Vector2i(_direction);
-    Vector2i newdir = directions[(rand() % 4)];
 
-    switch (_state) {
-    case ROAMING:
-        if (LevelSystem::getTileAt(newpos) == LevelSystem::WALL ||
-            LevelSystem::getTileAt(newpos) == LevelSystem::WAYPOINT) {
-            _state = ROTATING;
-        }
-        else {
-            move(_direction * mva);
-        }
-        break;
+    // Get the player's position from the game scene
+    auto playerPos = _player.getPosition();
 
-    case ROTATING: {
-        bool foundNewDirection = false;
-        int attempts = 0;
-        while (!foundNewDirection && attempts < 10) {
-            newdir = directions[(rand() % 4)];
-            if (newdir != baddir &&
-                LevelSystem::getTileAt(pos + Vector2f(newdir)) != LevelSystem::WALL) {
-                foundNewDirection = true;
-            }
-            attempts++;
-        }
-        if (!foundNewDirection) {
-            newdir = baddir; // Reverse direction if no other option
-        }
-        _direction = Vector2f(newdir);
-        _state = ROTATED;
-        break;
+    // Print the player's position to the console
+    std::cout << "Player Position: X=" << playerPos.x << " Y=" << playerPos.y << std::endl;
+
+    // Calculate direction towards the player
+    Vector2f direction = playerPos - pos;
+    if (length(direction) > 0) {
+        direction = normalize(direction);
     }
 
-    case ROTATED:
-        if (LevelSystem::getTileAt(pos) != LevelSystem::WAYPOINT) {
-            _state = ROAMING;
-        }
-        move(_direction * mva);
-        break;
+
+
+    const Vector2f newpos = pos + direction * mva;
+
+    // Check if next position is a wall
+    if (LevelSystem::getTileAt(newpos) != LevelSystem::WALL) {
+        move(direction * mva);
+    }
+    else {
+        // Handle case when ghost hits a wall
+        // For example, stop or choose a new random direction
     }
 
     ActorMovementComponent::update(dt);
+}
+
+// Utility function to normalize a vector
+Vector2f normalize(const Vector2f& v) {
+    float len = length(v);
+    if (len != 0) {
+        return v / len;
+    }
+    return v;
+}
+
+// Utility function to calculate the length of a vector
+float length(const Vector2f& v) {
+    return std::sqrt(v.x * v.x + v.y * v.y);
 }

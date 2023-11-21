@@ -1,15 +1,13 @@
 #pragma once
 #include "cmp_actor_movement.h"
+#include "pacman.h"
 #include <SFML/Graphics.hpp>
 
 class EnemyAIComponent : public ActorMovementComponent {
 protected:
-	sf::Vector2f _direction;
-	enum state { ROAMING, ROTATING, ROTATED };
-	state _state;
+    Entity& _player;
 
 public:
-	explicit EnemyAIComponent(Entity* p, const sf::Vector2f& direction);
-
-	void update(double dt) override;
+    EnemyAIComponent(Entity* p, Entity& player);
+    void update(double dt) override;
 };

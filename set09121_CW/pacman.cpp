@@ -99,12 +99,12 @@ void GameScene::load() {
         sc->setShape<sf::CircleShape>(12.f);
         sc->getShape().setFillColor(ghost_cols[i % 4]);
         sc->getShape().setOrigin(sf::Vector2f(12.f, 12.f));
-        ghost->addComponent<EnemyAIComponent>(sf::Vector2f(1.f, 0.f));
+        ghost->addComponent<EnemyAIComponent>(*player);
         ghosts.push_back(ghost);
         _ents.list.push_back(ghost);
     }
 
-    respawn(); 
+    respawn();
 }
 
 void GameScene::respawn() {
@@ -116,14 +116,11 @@ void GameScene::respawn() {
 
     auto ghost_spawns = ls::findTiles(ls::ENEMY);
     for (auto& g : ghosts) {
-        g->setPosition(
-            ls::getTilePosition(ghost_spawns[rand() % ghost_spawns.size()]));
+        g->setPosition(ls::getTilePosition(ghost_spawns[rand() % ghost_spawns.size()]));
         auto ghostComponents = g->get_components<ActorMovementComponent>();
         if (!ghostComponents.empty()) {
             ghostComponents[0]->setSpeed(100.0f);
         }
 
     }
-
 }
-
