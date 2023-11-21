@@ -33,8 +33,8 @@ add_library(lib_ecm STATIC ${SOURCE_FILES})
 target_include_directories(lib_ecm INTERFACE "${CMAKE_SOURCE_DIR}/lib_ecm" )
 target_link_libraries(lib_ecm PRIVATE lib_maths)
 
-## PacMan
-file(GLOB_RECURSE SOURCES 4_pacMan/*.cpp 4_pacMan/*.h)
-add_executable(4_pacMan ${SOURCES} )
-target_include_directories(4_pacMan SYSTEM PRIVATE ${SFML_INCS})
-target_link_libraries(4_pacMan sfml-graphics lib_ecm lib_maths lib_tile_level_loader)
+## set09121_CW
+file(GLOB_RECURSE SOURCES set09121_CW/*.cpp set09121_CW/*.h)
+add_executable(set09121_CW ${SOURCES} )
+target_include_directories(set09121_CW SYSTEM PRIVATE ${SFML_INCS})
+target_link_libraries(set09121_CW sfml-graphics lib_ecm lib_maths lib_tile_level_loader)
