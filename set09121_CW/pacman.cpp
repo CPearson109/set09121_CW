@@ -99,7 +99,10 @@ void GameScene::load() {
         sc->setShape<sf::CircleShape>(12.f);
         sc->getShape().setFillColor(ghost_cols[i % 4]);
         sc->getShape().setOrigin(sf::Vector2f(12.f, 12.f));
-        ghost->addComponent<EnemyAIComponent>(*player);
+        auto getPlayerPosition = [this]() -> sf::Vector2f {
+            return this->player->getPosition();
+        };
+        ghost->addComponent<EnemyAIComponent>(getPlayerPosition);
         ghosts.push_back(ghost);
         _ents.list.push_back(ghost);
     }

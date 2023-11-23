@@ -1,26 +1,19 @@
 #include "cmp_enemy_ai.h"
 #include "LevelSystem.h"
-#include "pacman.h"
-#include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <iostream>
 
 using namespace sf;
 
-// Constructor
-EnemyAIComponent::EnemyAIComponent(Entity* p, Entity& player)
-    : ActorMovementComponent(p), _player(player) {}
+EnemyAIComponent::EnemyAIComponent(Entity* p, std::function<sf::Vector2f()> getPlayerPosition)
+    : ActorMovementComponent(p), _getPlayerPosition(getPlayerPosition) {}
 
-// Update method
 void EnemyAIComponent::update(double dt) {
     const auto mva = (float)(dt * _speed);
-    const Vector2f pos = _parent->getPosition();
+    const sf::Vector2f pos = _parent->getPosition();
 
-    // Get the player's position from the game scene
-    auto playerPos = _player.getPosition();
-
-    // Print the player's position to the console
-    std::cout << "Player Position: X=" << playerPos.x << " Y=" << playerPos.y << std::endl;
+    // Get the player's current position
+    sf::Vector2f playerPos = _getPlayerPosition();
 
     // Calculate direction towards the player
     Vector2f direction = playerPos - pos;
@@ -28,17 +21,13 @@ void EnemyAIComponent::update(double dt) {
         direction = normalize(direction);
     }
 
-
-
+    // Move towards the player
     const Vector2f newpos = pos + direction * mva;
-
-    // Check if next position is a wall
     if (LevelSystem::getTileAt(newpos) != LevelSystem::WALL) {
         move(direction * mva);
     }
     else {
-        // Handle case when ghost hits a wall
-        // For example, stop or choose a new random direction
+        // Handle collision with wall
     }
 
     ActorMovementComponent::update(dt);
