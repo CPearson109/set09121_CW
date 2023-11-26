@@ -1,8 +1,8 @@
 //main.cpp
 #include <iostream>
 #include "player.h"
-#include "ghost.h"
-#include "pacman.h"
+#include "enemy.h"
+#include "game.h"
 #include "system_renderer.h"
 #include "scene.h"
 #include "ecm.h"
@@ -10,7 +10,7 @@
 using namespace sf;
 using namespace std;
 
-const int gameWidth = 700;
+const int gameWidth = 1400;
 const int gameHeight = 900;
 
 
@@ -36,7 +36,7 @@ void Render(RenderWindow& window) {
 }
 
 int main() {
-    RenderWindow window(VideoMode(gameWidth, gameHeight), "PacMan");
+    RenderWindow window(VideoMode(gameWidth, gameHeight), "Wizards Of The Abyss");
     Renderer::initialise(window);
     Load();
 

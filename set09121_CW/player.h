@@ -2,15 +2,19 @@
 #include "SFML/Graphics.hpp"
 #include "ecm.h"
 #include "cmp_sprite.h"
-#include "cmp_actor_movement.h" // Include the actor movement component header
+#include "cmp_actor_movement.h"
+#include "player_projectile.h"
 
 class Player : public Entity {
 private:
     float _speed;
-    std::shared_ptr<ActorMovementComponent> _movement; // Keep a shared pointer to the ActorMovementComponent
+    sf::RenderWindow& _window; // Reference to the game window
+    sf::Texture& _projectileTexture; // Reference to the projectile texture 
+    std::shared_ptr<ActorMovementComponent> _movement;
 
 public:
+    Player(sf::RenderWindow& window, sf::Texture& projectileTexture);
     void Update(double dt);
-    Player();
     void Render(sf::RenderWindow& window) const;
+    void FireProjectile();
 };

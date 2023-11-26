@@ -1,13 +1,16 @@
-//"cmp_actor_movement.cpp"
+//"cmp_player_movement.cpp"
 #include "cmp_actor_movement.h"
+#include "cmp_enemy_ai.h"
 #include <LevelSystem.h>
 
 using namespace sf;
 
-void ActorMovementComponent::update(double dt) {}
+void ActorMovementComponent::update(double dt) {
+
+}
 
 ActorMovementComponent::ActorMovementComponent(Entity* p)
-    : _speed(100.0f), Component(p) {}
+    : _speed(100.f), Component(p) {}
 
 bool ActorMovementComponent::validMove(const sf::Vector2f& pos) {
     return (LevelSystem::getTileAt(pos) != LevelSystem::WALL);
