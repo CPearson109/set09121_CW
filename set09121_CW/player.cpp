@@ -7,27 +7,28 @@
 
 using namespace sf;
 
-Player::Player(sf::RenderWindow& window, sf::Texture& projectileTexture)
-    : _window(window), _projectileTexture(projectileTexture), _speed(100.f) {
-}
+Player::Player(Scene* scene, sf::RenderWindow& window, sf::Texture& projectileTexture)
+    : Entity(scene), _window(window), _projectileTexture(projectileTexture), _speed(10.f), _projectileCooldown(0.5f), _timeSinceLastShot(0.f) {}
 
-void Player::Update(double dt) {
-    auto movement = get_components<PlayerMovementComponent>()[0];
+void Player::update(double dt) {
+    _timeSinceLastShot += dt;
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        fireProjectile();
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && _timeSinceLastShot >= _projectileCooldown) {
+        FireProjectile();
+        _timeSinceLastShot = 0.f;
     }
 
     Entity::update(dt);
 }
 
-void Player::fireProjectile() {
-    auto window = /* get your SFML window reference */;
-    sf::Vector2f mousePos = window->mapPixelToCoords(sf::Mouse::getPosition(*window));
-    sf::Vector2f direction = mousePos - getPosition();
-    float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    direction /= magnitude; // Normalize the direction vector
+void Player::FireProjectile() {
 
-    auto projectile = std::make_shared<Projectile>(getPosition(), direction, 300.f); // Speed of projectile
-    // Add the projectile to the scene or entity manager
+    // Fixed starting position (0,0)
+    sf::Vector2f startPosition(100.f, 100.f);
+
+    // Fixed direction (example: moving upwards)
+    sf::Vector2f direction(0.f, -1.f);
+
+    auto projectile = std::make_shared<Projectile>(scene, startPosition, direction, 300.f, _projectileTexture);
+    scene->addEntity(projectile);
 }

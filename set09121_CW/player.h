@@ -1,3 +1,4 @@
+//player.h
 #pragma once
 #include "SFML/Graphics.hpp"
 #include "ecm.h"
@@ -11,10 +12,11 @@ private:
     sf::RenderWindow& _window; // Reference to the game window
     sf::Texture& _projectileTexture; // Reference to the projectile texture 
     std::shared_ptr<ActorMovementComponent> _movement;
+    float _projectileCooldown;
+    float _timeSinceLastShot;
 
 public:
-    Player(sf::RenderWindow& window, sf::Texture& projectileTexture);
-    void Update(double dt);
-    void Render(sf::RenderWindow& window) const;
+    Player(Scene* scene, sf::RenderWindow& window, sf::Texture& projectileTexture);
+    void update(double dt) override;
     void FireProjectile();
 };

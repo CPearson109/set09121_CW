@@ -27,7 +27,7 @@ std::shared_ptr<Scene> activeScene;
 
 // Menu Scene
 void MenuScene::update(double dt) {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
         activeScene = gameScene;
     }
     Scene::update(dt);
@@ -68,7 +68,7 @@ void GameScene::update(double dt) {
     }
 
     for (auto& ent : _ents.list) {
-        ent->update(dt);
+            ent->update(dt);
     }
 
     Scene::update(dt);
@@ -88,8 +88,15 @@ void GameScene::render() {
 void GameScene::load() {
     ls::loadLevelFile("D:/set09121_CW/res/levels/pacman.txt", 20.f);
 
+    static sf::Texture projectileTexture;
+    if (!projectileTexture.loadFromFile("D:/set09121_CW/res/img/Fireball-1.png")) {
+        std::cerr << "Failed to load projectile texture" << std::endl;
+    }
+
+    sf::RenderWindow& window = Renderer::getWindow();
+
     // Create and set up player
-    player = std::make_shared<Entity>(this);
+    player = std::make_shared<Player>(this, window, projectileTexture);
     auto s = player->addComponent<ShapeComponent>();
     s->setShape<sf::CircleShape>(12.f);
     s->getShape().setFillColor(sf::Color::Yellow);
@@ -129,3 +136,13 @@ void GameScene::respawn() {
 
     }
 }
+
+void Scene::addEntity(std::shared_ptr<Entity> entity) {
+    if (!entity) {
+        std::cerr << "Attempted to add a null entity to the scene" << std::endl;
+        return;
+    }
+
+    _ents.list.push_back(entity);
+}
+

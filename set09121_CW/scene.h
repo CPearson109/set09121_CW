@@ -10,7 +10,9 @@ public:
 	virtual void render() {};
 	virtual void load() = 0;
 	std::vector<std::shared_ptr<Entity>>& getEnts();
+	void addEntity(std::shared_ptr<Entity> entity);
 
 protected:
 	EntityManager _ents;
+
 };
