@@ -1,11 +1,42 @@
-#include "Mage.h"
-#include "LevelSystem.h"
+// Entity.cpp
+#include "Entity.h" 
+#include "Game.h"
 #include "Bullet.h"
+#include "LevelSystem.h" // Include any additional necessary headers
+
+using namespace sf;
+using namespace std;
 
 
+Entity::Entity() {};
+
+//constructor with an initialization list
+Entity::Entity(sf::IntRect ir, sf::Vector2f pos) : _sprite() {
+    _sprite = ir;
+    setTexture(spritesheet);
+    setTextureRect(_sprite);
+    setPosition(pos);
+    // Initialize other member variables if needed
+}
+
+
+void Entity::Update(const float& dt) {}
+
+Entity::~Entity() {
+    // Implementation of pure virtual destructor, even if it's empty
+}
+
+bool Entity::is_exploded() const {
+    return _exploded;
+}
+
+void Entity::Explode() {
+    setTextureRect(IntRect(Vector2i(128, 32), Vector2i(32, 32)));
+    _exploded = true;
+}
 
 Mage::Mage(sf::IntRect ir, sf::Vector2f pos)
-    : Ship(),
+    : Entity(),
     walkDownAnimation(0, 0, 35, 37, 4, 0.2f), // Set the sprite size to 35x37 pixels
     walkUpAnimation(0, 38, 35, 37, 4, 0.2f), // Assuming each row is 37 pixels apart
     walkRightAnimation(0, 75, 35, 37, 4, 0.2f), // 2 rows down
@@ -24,6 +55,10 @@ Mage::Mage(sf::IntRect ir, sf::Vector2f pos)
 }
 
 void Mage::FireBullet(bool mode) {
+    // Debug statement to indicate this method is called
+    std::cout << "Mage::FireBullet called" << std::endl;
+
+
     // Calculate the position below the Mage's head
     sf::Vector2f bulletPosition = getPosition();
     bulletPosition.x += getLocalBounds().width / 2.0f; // Center horizontally

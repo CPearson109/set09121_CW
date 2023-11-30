@@ -1,40 +1,54 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "Ship.h"
+#include "Entity.h"
 #include "Game.h"
 #include "Bullet.h"
 #include "LevelSystem.h"
-#include "Mage.h"
 #include "PauseMenu.h"
 
 
 using namespace std;
 using namespace sf;
 
-std::vector<Ship*> ships;
+
 sf::Texture spritesheet;
 sf::Texture bulletTexture; // Declare a texture for the bullet
 sf::Sprite invader;
-Ship* player = nullptr;
+Mage* playerMage = nullptr; // Initialize the static member
 std::vector<Bullet*> bullets;
 PauseMenu pauseMenu;
 
+enum class GameState {
+    Playing,
+    Paused
+};
+
 // Function to initialize the bullet pool
 void InitializeBulletPool() {
+    std::cout << "Initializing Bullet Pool..." << std::endl; // Debug statement
     Bullet::Init();
+    std::cout << "Bullet Pool Initialized." << std::endl; // Debug statement
 }
 
 
 void Load() {
     if (!spritesheet.loadFromFile("C:/Users/romeo/year1_game/res/img/mage.png")) {
         std::cerr << "Failed to load spritesheet." << std::endl;
-        // Handle the error, e.g., exit the program
+        
     }
-    // Load the texture for the bullet
+    else {
+        std::cout << "Mage spritesheet loaded successfully." << std::endl; // Debug statement
+    }
+
+
+    // Load the bullet texture using bulletTexture
     if (!bulletTexture.loadFromFile("C:/Users/romeo/year1_game/res/img/Fireball-1.png")) {
         std::cerr << "Failed to load bullet texture." << std::endl;
-        // Handle the error, e.g., exit the program
     }
+    else {
+        std::cout << "Bullet texture loaded successfully." << std::endl; // Debug statement
+    }
+
    
 }
 
@@ -44,11 +58,13 @@ int main() {
     Load();
 
     // Initialize the bullet pool here
-    //InitializeBulletPool();
+   InitializeBulletPool();
+
+     // Initialize the game state to Playing
+    GameState gameState = GameState::Playing;
 
 
-
-      // Load the background image for the pause menu
+    // Load the background image for the pause menu
     sf::Texture pauseMenuBackgroundTexture;
     if (!pauseMenuBackgroundTexture.loadFromFile("C:/Users/romeo/year1_game/res/img/book_pages.png")) {
         std::cerr << "Failed to load pause menu background image." << std::endl;
@@ -59,8 +75,8 @@ int main() {
     PauseMenu pauseMenu(pauseMenuBackgroundTexture);
 
 
-    LevelSystem::loadLevelFile("C:\\Users\\romeo\\year1_game\\res\\levels\\level_3.txt", 35.f); // You'll need to provide the correct path
-    
+    LevelSystem::loadLevelFile("C:\\Users\\romeo\\year1_game\\res\\levels\\level_2.txt", 35.f); // You'll need to provide the correct path
+
     // Get the start position from the level system
     sf::Vector2f startPos = LevelSystem::getStartTilePosition();
     if (startPos.x < 0 || startPos.y < 0) {
@@ -69,12 +85,12 @@ int main() {
     }
 
     //create a Mage instance
-        Mage myMage(sf::IntRect(0, 0, 35, 37), startPos); 
+    Mage myMage(sf::IntRect(0, 0, 35, 37), startPos);
 
 
     // Load the background image
     sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("C:/Users/romeo/year1_game/res/img/3rd_map.png")) {
+    if (!backgroundTexture.loadFromFile("C:/Users/romeo/year1_game/res/img/2nd_map.png")) {
         std::cerr << "Failed to load background image." << std::endl;
         return 1;
     }
@@ -84,99 +100,74 @@ int main() {
     }
 
     // Declare an sf::Clock object
-    sf::Clock clock; 
+    sf::Clock clock;
 
 
     sf::Sprite backgroundSprite(backgroundTexture);
 
+    // Create a sprite for the pause menu 
+    sf::Sprite PauseSprite(pauseMenuBackgroundTexture);
+
+
     // Variable to track whether the spacebar was previously pressed
     bool spacebarPressed = false;
+   
+    // Variable to track whether the 'P' key was pressed in the previous frame
+    static bool prevPKeyPressed = false;
 
     while (window.isOpen()) {
+        
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            // Check for 'P' key press to toggle the pause menu
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P) {
-                pauseMenu.Toggle(); // Toggle the pause menu's open/closed state
-            }
         }
-       
-   
-
         float dt = clock.restart().asSeconds();
 
 
+
+        bool pKeyCurrentlyPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::P);
+        if (pKeyCurrentlyPressed && !prevPKeyPressed) {
+            gameState = (gameState == GameState::Playing) ? GameState::Paused : GameState::Playing;
+            std::cout << "Game state changed to: " << ((gameState == GameState::Paused) ? "Paused" : "Playing") << std::endl;
+        }
+        prevPKeyPressed = pKeyCurrentlyPressed;
+
+
+        // Update the previous key state
+        prevPKeyPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::P);
+
         window.clear();
 
-        if (!pauseMenu.IsOpen()) {
-            // Update game logic when the pause menu is closed
+        //gamestates
+        if (gameState == GameState::Playing) {
+            // Place all update logic here
             myMage.Update(dt);
             Bullet::Update(dt);
-        }
 
-
-
-
-        // Update the Mage 
-        myMage.Update(dt);
-
-        // Update all bullets
-        Bullet::Update(dt); 
-        // Draw the background
-        window.draw(backgroundSprite);
-        // Render the tilemap on top of the background
-        LevelSystem::Render(window);
-       
-
-
-
-
-
-        // Check for spacebar key press and fire a bullet from the Mage
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            // Check if the spacebar was not pressed in the previous frame
-            if (!spacebarPressed) {
-                // Assuming false means it's a player bullet
-                myMage.FireBullet(false); 
+            bool isSpacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+            if (isSpacePressed && !spacebarPressed) {
+                std::cout << "Spacebar pressed. Firing bullet." << std::endl;
+                myMage.FireBullet(false); // Fire a bullet
             }
-            // Set the flag to true when spacebar is pressed
-            spacebarPressed = true; 
-        }
-        else {
-            // Reset the flag when spacebar is released
-            spacebarPressed = false; 
-        }
+            spacebarPressed = isSpacePressed; // Update the state of spacebarPressed
 
 
-
-
-
-        // Draw the Mage
-        window.draw(myMage);
-
-        // Render active bullets
-        Bullet::Render(window);
-
-
-
-
-
-
-
-        if(!pauseMenu.IsOpen()) {
+            // Draw gameplay elements
+            window.draw(backgroundSprite);
+            LevelSystem::Render(window);
             window.draw(myMage);
             Bullet::Render(window);
-        }
-        else {
-            // Render the pause menu
-            pauseMenu.Display(window);
-        }
 
+        }
+        else if (gameState == GameState::Paused) {
+            // Draw the pause menu here 
+            window.draw(PauseSprite);
+        }
 
         window.display();
+       
     }
 
     return 0;
