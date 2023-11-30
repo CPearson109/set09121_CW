@@ -1,13 +1,12 @@
-//"cmp_actor_movement.cpp"
-#include "cmp_actor_movement.h"
+//"cmp_player_movement.cpp"
+#include "cmp_player_movement.h"
+#include "cmp_enemy_ai.h"
 #include <LevelSystem.h>
 
 using namespace sf;
 
-void ActorMovementComponent::update(double dt) {}
-
 ActorMovementComponent::ActorMovementComponent(Entity* p)
-    : _speed(100.0f), Component(p) {}
+    : _speed(100.f), Component(p) {}
 
 bool ActorMovementComponent::validMove(const sf::Vector2f& pos) {
     return (LevelSystem::getTileAt(pos) != LevelSystem::WALL);
@@ -29,4 +28,21 @@ float ActorMovementComponent::getSpeed() const {
 
 void ActorMovementComponent::setSpeed(float speed) { 
     _speed = speed; 
+}
+
+void ActorMovementComponent::update(double dt) {
+    float speed = getSpeed() * dt;
+
+    if (Keyboard::isKeyPressed(Keyboard::W)) {
+        move(Vector2f(0.f, -speed));
+    }
+    if (Keyboard::isKeyPressed(Keyboard::A)) {
+        move(Vector2f(-speed, 0.f));
+    }
+    if (Keyboard::isKeyPressed(Keyboard::S)) {
+        move(Vector2f(0.f, speed));
+    }
+    if (Keyboard::isKeyPressed(Keyboard::D)) {
+        move(Vector2f(speed, 0.f));
+    }
 }

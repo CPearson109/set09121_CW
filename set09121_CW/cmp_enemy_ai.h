@@ -1,13 +1,15 @@
 #pragma once
 #include <functional>
-#include "cmp_actor_movement.h"
+#include "cmp_player_movement.h"
 #include "ecm.h"
 
 class EnemyAIComponent : public ActorMovementComponent {
-protected:
+private:
     std::function<sf::Vector2f()> _getPlayerPosition;
+    float _enemySpeed;
 
 public:
-    EnemyAIComponent(Entity* p, std::function<sf::Vector2f()> getPlayerPosition);
+    EnemyAIComponent(Entity* p, std::function<sf::Vector2f()> getPlayerPosition, float ghostSpeed);
+
     void update(double dt) override;
 };

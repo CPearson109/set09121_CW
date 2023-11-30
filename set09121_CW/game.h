@@ -1,4 +1,4 @@
-//pacman.h
+//game.h
 #pragma once
 #include "scene.h"
 #include <SFML/Graphics.hpp>
@@ -11,6 +11,8 @@ class MenuScene : public Scene {
 private:
     sf::Text text;
     sf::Font font;
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
 
 public:
     MenuScene() = default;
@@ -22,7 +24,7 @@ public:
 class GameScene : public Scene {
 private:
     std::shared_ptr<Entity> player;
-    std::vector<std::shared_ptr<Entity>> ghosts;
+    std::vector<std::shared_ptr<Entity>> enemys;
     sf::Text text;
     sf::Font font;
 
