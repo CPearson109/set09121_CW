@@ -6,8 +6,8 @@
 using namespace sf;
 
 // Player methods
-Player::Player(Scene* scene, sf::RenderWindow& window, sf::Texture& projectileTexture)
-    : Entity(scene), _window(window), _projectileTexture(projectileTexture), _speed(10.f), _projectileCooldown(0.5f), _timeSinceLastShot(0.f) {}
+Player::Player(Scene* scene, sf::RenderWindow& window)
+    : Entity(scene), _window(window), _speed(10.f) {}
 
 void Player::update(double dt) {
     Entity::update(dt);
