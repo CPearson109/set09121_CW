@@ -2,9 +2,11 @@
 //LevelSystem.h
 #include <SFML/Graphics.hpp>
 #include <memory>
-#include <vector>
 #include <map>
 #include "maths.h"
+#include <vector>
+#include <queue>
+#include <unordered_map>
 
 class LevelSystem {
 public:
@@ -19,6 +21,9 @@ public:
     static TILE getTile(sf::Vector2ul);
     static sf::Vector2f getTilePosition(sf::Vector2ul);
     static sf::Vector2f getStartTilePosition();  // Declare this method
+    static sf::Vector2f getEnemyTilePosition();
+    static float getTileSize();
+    static std::vector<sf::Vector2f> LevelSystem::getAllStartTilePositions();
    
 
 

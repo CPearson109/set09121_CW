@@ -1,94 +1,159 @@
-#include "bullet.h"
-#include "game.h"
-#include "ship.h"
+// Include the necessary headers from SFML, and standard input-output library
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <cmath>
+
+// Include custom header files for Bullet, Game, and Entity classes
+#include "Bullet.h"
+#include "Game.h"
+#include "Entity.h"
+#include "LevelSystem.h"
+
+// Use the namespaces from SFML and standard library for convenience
 using namespace sf;
 using namespace std;
 
+// Static variables for the Bullet class
+unsigned char Bullet::bulletPointer = 0; // A static pointer to keep track of bullets
+Bullet Bullet::bullets[64];             // Static array to store bullets
+std::vector<Entity*> entities;            // Global vector to store entities
+const float Bullet::bulletSpeed = 200.0f;  // Assign a value (e.g., 200.0f)
 
-unsigned char Bullet::bulletPointer = 0;
-Bullet Bullet::bullets[256];
 
-// Default constructor (might be private if you only create bullets through Fire method)
-Bullet::Bullet() {
-    // You might want to set default values here
+// Default constructor for Bullet class, initializes a bullet as inactive and off-screen
+Bullet::Bullet() : _active(false), _mode(false) {
+    setTexture(bulletTexture); // Ensure texture is set
+    setTextureRect(sf::IntRect(0, 0, 32, 32)); // Set the part of the texture to display
+    setOrigin(0, 0);
+    setPosition(-100, -100);
 }
 
-Bullet::Bullet(const sf::Vector2f& pos, const bool mode) : _mode(mode) {
-    setTexture(spritesheet);
-    setPosition(pos);
-
+// Parametrized constructor for Bullet class, initializes bullet with position and mode
+Bullet::Bullet(const sf::Vector2f& pos, const bool mode, const sf::Vector2f& direction)
+    : _mode(mode), _active(true), _direction(direction) {
+    setTexture(bulletTexture); // Set the texture for the bullet
+    setTextureRect(sf::IntRect(0, 0, 16, 16)); // Set the part of the texture to display
+    setPosition(pos);        // Set the initial position of the bullet
 }
 
+// Update method for Bullet class, called every frame to update bullet states
 void Bullet::Update(const float& dt) {
-    for (unsigned char i = 0; i < bulletPointer; ++i) {
-        if (bullets[i].isActive()) {
-            // Move each active bullet
-            bullets[i].move(Vector2f(0, dt * 200.0f * (bullets[i]._mode ? 1.0f : -1.0f)));
+    for (auto& bullet : bullets) { // Loop through each bullet
+        if (bullet.isActive()) {
+            bullet.move(bullet._direction * dt * bulletSpeed); // bulletSpeed is a constant for bullet speed
 
-            // Check if the bullet is off-screen
-            if (bullets[i].getPosition().y < -32 || bullets[i].getPosition().y > gameHeight + 32) {
-                // Deactivate off-screen bullet
-                bullets[i]._active = false; // Assuming _active is a member that tracks if a bullet is active
-            }
-            else {
-                // Check for collision with ships
-                const FloatRect boundingBox = bullets[i].getGlobalBounds();
-                for (auto s : ships) {
-                    // Make sure 'player' is a defined pointer to the player's ship
-                    if (!bullets[i]._mode && s == player) {
-                        // Player bullets don't collide with the player
-                        continue;
-                    }
-                    if (bullets[i]._mode && s != player) {
-                        // Invader bullets don't collide with other invaders
-                        continue;
-                    }
-                    if (!s->is_exploded() && s->getGlobalBounds().intersects(boundingBox)) {
-                        // Explode the ship
-                        s->Explode();
-                        // Warp bullet off-screen
-                        bullets[i].setPosition(Vector2f(-100, -100));
-                        bullets[i]._active = false; // Deactivate the bullet
-                        break; // Exit the loop as the bullet has hit a ship
-                    }
+            if (bullet.isActive()) {   // If the bullet is active
+                // Determine bullet movement direction based on its mode
+                float direction = bullet.getMode() ? 1.0f : -1.0f;
+                // Move the bullet vertically
+                bullet.move(0, dt * 200.0f * direction);
+
+                //std::cout << "Updating active bullet. New position: " << bullet.getPosition().x << ", " << bullet.getPosition().y << std::endl;
+
+
+                // Check if the bullet is off-screen and deactivate it
+                sf::Vector2f bulletPos = bullet.getPosition();
+                if (bulletPos.x < 0 || bulletPos.x > gameWidth || bulletPos.y < 0 || bulletPos.y > gameHeight) {
+                    bullet.deactivate();
+                    // std::cout << "Bullet deactivated as it moved off-screen." << std::endl;
+                }
+
+                else {
+                    // If on-screen, check for collisions
+                    bullet.checkCollisions();
                 }
             }
         }
     }
 }
 
-// Static method to render all bullets in the pool
-void Bullet::Render(sf::RenderWindow& window) {
-    for (unsigned char i = 0; i < bulletPointer; ++i) {
-        if (bullets[i].isActive()) {
-            window.draw(bullets[i]);
+// Getter method for the _mode member
+ bool Bullet::getMode() const {
+    return _mode;
+}
+
+ void Bullet::checkCollisions() {
+     // Get the bullet's current position
+     sf::Vector2f bulletPosition = getPosition();
+
+     // Calculate the tile position for the bullet
+     sf::Vector2ul tilePos(static_cast<unsigned>(bulletPosition.x / LevelSystem::getTileSize()),
+         static_cast<unsigned>(bulletPosition.y / LevelSystem::getTileSize()));
+
+     // Check if the tile is a wall
+     if (LevelSystem::getTile(tilePos) == LevelSystem::WALL) {
+         deactivate(); // Deactivate the bullet if it hits a wall
+     }
+ }
+
+
+// Render method to draw active bullets on the window
+void Bullet::Render(RenderWindow& window) {
+    for (const auto& bullet : bullets) {
+        if (bullet.isActive()) {
+            //std::cout << "Rendering active bullet at position: " << bullet.getPosition().x << ", " << bullet.getPosition().y << std::endl;
+
+            window.draw(bullet); // Draw each active bullet
         }
     }
 }
-// Static method to initialize the bullets (e.g., during game setup)
-void Bullet::Init() {
-    for (unsigned char i = 0; i < 256; ++i) {
-        bullets[i] = Bullet(); // Calls the default constructor
-        bullets[i].setPosition(-100, -100); // Off-screen or inactive position
-    }
-}
-void Bullet::Fire(const sf::Vector2f& pos, const bool mode) {
-    // Here you would need to implement logic to find an inactive bullet and activate it.
-    // // Check if bulletPointer exceeds 255 (maximum index), and wrap it back to 0 if needed
-    if (bulletPointer >= 255) {
-        bulletPointer = 0;
-    }
-    // For example:
-    bullets[bulletPointer].setPosition(pos);
-    bullets[bulletPointer]._mode = mode;
-    // Set the bullet to active
-    bulletPointer++; // Move to the next bullet in the pool
-    // Note: you should also include logic to wrap the bulletPointer around to 0 if it exceeds 255
-}
-// You would also need to implement a method to determine if a bullet is active
-bool Bullet::isActive() const {
-    // This method should check if the bullet is currently active.
-    // You might use position, a boolean flag, or some other mechanism to determine this.
-    return getPosition().x >= 0 && getPosition().y >= 0 && _active;
 
+// Static method to initialize bullets
+void Bullet::Init() {
+    cout << "Initializing bullets..." << endl;
+    for (auto& bullet : bullets) {
+        bullet.deactivate(); // Deactivate all bullets initially
+    }
+    //cout << "Bullet initialization completed." << endl;
+}
+
+// Static method to fire a bullet
+void Bullet::Fire(const sf::Vector2f& pos, const bool mode, const sf::Vector2f& direction) {
+    for (unsigned char i = 0; i < 64; ++i) {
+        Bullet& bullet = bullets[bulletPointer];
+        bulletPointer = (bulletPointer + 1) % 64; // Cycle through the bullets
+
+        if (!bullet.isActive()) {
+            bullet.activate(pos, mode, direction); // Reactivate the bullet
+            return; // Exit the method after firing a bullet
+        }
+    }
+} 
+
+    
+
+// Method to check if the bullet is active
+bool Bullet::isActive() const {
+    return _active;
+}
+
+// Custom method to check collisions for a specific bullet
+void Bullet::checkCollisions(Bullet& bullet) {
+    FloatRect boundingBox = bullet.getGlobalBounds(); // Get bullet's bounding box
+    for (auto* entity : entities) {
+        // Skip certain entities based on bullet's mode and entity type
+        if ((bullet._mode && entity != playerMage) || (!bullet._mode && entity == playerMage)) {
+            continue;
+        }
+
+      
+    }
+}
+
+// Method to activate a bullet
+void Bullet::activate(const sf::Vector2f& pos, bool mode, const sf::Vector2f& direction) {
+    setPosition(pos);
+    _mode = mode;
+    _active = true;
+    _direction = direction;
+
+    float angle = atan2(direction.y, direction.x) * 180 / 3.141;
+    setRotation(angle);
+    
+}
+
+// Method to deactivate a bullet
+void Bullet::deactivate() {
+    setPosition(-100, -100); // Move the bullet off-screen
+    _active = false;         // Mark the bullet as inactive
 }

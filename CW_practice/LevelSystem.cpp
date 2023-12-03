@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream> // This is required for std::ostringstream
 #include <stdexcept> 
+#include <set>
 
 using namespace std;
 using namespace sf;
@@ -117,11 +118,26 @@ void LevelSystem::buildSprites() {
             auto s = make_unique<RectangleShape>();
             s->setPosition(getTilePosition({ x, y }));
             s->setSize(Vector2f(_tileSize, _tileSize));
-            s->setFillColor(getColor(getTile({ x, y })));
+
+            // Check the tile type and set its fill color accordingly
+            TILE tileType = getTile({ x, y });
+            switch (tileType) {
+            case WALL:
+                s->setFillColor(Color::Transparent); // Make WALL tiles transparent
+                break;
+            case END:
+                s->setFillColor(Color::Transparent); // Make END tiles transparent
+                break;
+            default:
+                s->setFillColor(getColor(tileType)); // Set the fill color for other tiles
+                break;
+            }
+
             _sprites.push_back(move(s));
         }
     }
 }
+
 
 LevelSystem::TILE LevelSystem::getTile(sf::Vector2ul p) {
     if (p.x >= _width || p.y >= _height) {
@@ -148,4 +164,31 @@ sf::Vector2f LevelSystem::getStartTilePosition() {
         }
     }
     return sf::Vector2f(-1.f, -1.f);  // Return an invalid position if not found
+}
+
+sf::Vector2f LevelSystem::getEnemyTilePosition() {
+    for (size_t y = 0; y < _height; ++y) {
+        for (size_t x = 0; x < _width; ++x) {
+            if (_tiles[y * _width + x] == ENEMY) {  // Assuming ENEMY represents the 'n' tile
+                return sf::Vector2f(static_cast<float>(x) * _tileSize, static_cast<float>(y) * _tileSize);
+            }
+        }
+    }
+    return sf::Vector2f(-1.f, -1.f);  // Return an invalid position if not found
+}
+
+float LevelSystem::getTileSize() {
+    return _tileSize;
+}
+
+std::vector<sf::Vector2f> LevelSystem::getAllStartTilePositions() {
+    std::vector<sf::Vector2f> startPositions;
+    for (size_t y = 0; y < _height; ++y) {
+        for (size_t x = 0; x < _width; ++x) {
+            if (_tiles[y * _width + x] == ENEMY) {
+                startPositions.emplace_back(static_cast<float>(x) * _tileSize, static_cast<float>(y) * _tileSize);
+            }
+        }
+    }
+    return startPositions;
 }
