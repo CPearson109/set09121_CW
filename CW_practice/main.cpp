@@ -19,7 +19,6 @@ sf::Texture coinSpriteSheet; //Texture for coin
 sf::Texture bulletTexture; // Texture for the bullet 
 sf::Font globalFont;
 sf::Text coinText;
-sf::Texture bulletTexture; // Texture for the bullet
 
 Mage* playerMage = nullptr; // Initialize the static member
 std::vector<Bullet*> bullets;
@@ -42,7 +41,7 @@ void InitializeBulletPool() {
 
 void Load() {
     // Load the Mage spritesheet
-    if (!mageSpritesheet.loadFromFile("D:/year1_game/res/img/mage.png")) {
+    if (!mageSpritesheet.loadFromFile("D:/set09121_CW-main/res/img/mage.png")) {
         std::cerr << "Failed to load Mage spritesheet." << std::endl;
     }
     else {
@@ -51,7 +50,7 @@ void Load() {
 
     // Load the Slime spritesheet
 
-    if (!slimeSpritesheet.loadFromFile("D:/year1_game - Copy/res/img/slime_brown.png")) {
+    if (!slimeSpritesheet.loadFromFile("D:/set09121_CW-main/res/img/slime_brown.png")) {
         std::cerr << "Failed to load Slime spritesheet." << std::endl;
     }
     else {
@@ -59,7 +58,7 @@ void Load() {
     }
 
     // Load the bullet texture using bulletTexture
-    if (!bulletTexture.loadFromFile("D:/year1_game - Copy/res/img/Fireball-1.png")) {
+    if (!bulletTexture.loadFromFile("D:/set09121_CW-main/res/img/Fireball-1.png")) {
 
         std::cerr << "Failed to load bullet texture." << std::endl;
     }
@@ -68,7 +67,7 @@ void Load() {
     }
 
 
-    if (!coinSpriteSheet.loadFromFile("D:/year1_game - Copy/res/img/Gold_Coin.png")) {
+    if (!coinSpriteSheet.loadFromFile("D:/set09121_CW-main/res/img/Gold_Coin.png")) {
         std::cerr << "Failed to load coin sprite sheet." << std::endl;
     }
     else {
@@ -93,14 +92,14 @@ int main() {
 
     // Load the background image for the pause menu
     sf::Texture pauseMenuBackgroundTexture;
-    if (!pauseMenuBackgroundTexture.loadFromFile("D:/year1_game - Copy/res/img/book_pages.png")) {
+    if (!pauseMenuBackgroundTexture.loadFromFile("D:/set09121_CW-main/res/img/book_pages.png")) {
 
         std::cerr << "Failed to load pause menu background image." << std::endl;
         return 1;
     }
 
     //font laoding
-    if (!globalFont.loadFromFile("D:/year1_game - Copy/res/fonts/Roboto-Black.ttf")) { 
+    if (!globalFont.loadFromFile("D:/set09121_CW-main/res/fonts/Roboto-Black.ttf")) { 
         std::cerr << "Failed to load font." << std::endl;  
         return 1; // Or handle the error as needed 
     }
@@ -151,7 +150,7 @@ int main() {
 
 
 
-    LevelSystem::loadLevelFile("D:/year1_game - Copy/res/levels/level_2.txt", 35.f); // You'll need to provide the correct path
+    LevelSystem::loadLevelFile("D:/set09121_CW-main/res/levels/level_2.txt", 35.f); // You'll need to provide the correct path
 
     // Get the start position from the level system
     sf::Vector2f startPos = LevelSystem::getStartTilePosition();
@@ -171,9 +170,6 @@ int main() {
 
     // Declare and initialize slimeStats
     EntityStats slimeStats(100, 100.f, 1.0f, 10); //adjust these values as needed 
-    
-
-
 
 
     // Create a Slime for each start position
@@ -182,33 +178,16 @@ int main() {
         slimes.back().setTexture(slimeSpritesheet);
     }
 
-    std::vector<sf::Vector2f> enemyPositions = LevelSystem::getAllStartTilePositions();
-    std::vector<Slime> slimes;
-
-    // Create an instance of the Mage
-    Mage myMage(sf::IntRect(0, 0, 35, 37), startPos, mageSpritesheet);
-    myMage.setTexture(mageSpritesheet);
-
-    // Vector to store all slimes
-
-    // Create a Slime for each start position
-    for (const auto& pos : enemyPositions) {
-        slimes.emplace_back(sf::IntRect(0, 0, 49, 62), pos, slimeSpritesheet, myMage, 50.f);
-        slimes.back().setTexture(slimeSpritesheet);
-    }
 
     Bullet::setSlimesReference(slimes);
 
     // Load the background image
     sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("D:/year1_game - Copy/res/img/2nd_map.png")) {
+    if (!backgroundTexture.loadFromFile("D:/set09121_CW-main/res/img/2nd_map.png")) {
 
         std::cerr << "Failed to load background image." << std::endl;
         return 1;
     }
-
-
-
 
     // Declare an sf::Clock object
     sf::Clock clock;

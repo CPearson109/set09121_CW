@@ -10,7 +10,6 @@ Coin::Coin(sf::IntRect ir, sf::Vector2f pos, sf::Texture & texture)
 }
 
 void Coin::Update(const float& dt, sf::RenderWindow& window) {
-    std::cout << "Coin Update Called" << std::endl;
     spinAnimation.Update(dt);
     spinAnimation.ApplyToSprite(*this);
 }
