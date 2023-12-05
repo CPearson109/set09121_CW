@@ -18,14 +18,6 @@ void EntityManager::update(const float& dt, sf::RenderWindow& window) {
 }
 
 
-//void EntityManager::render() {
-//    for (auto& entity : list) {
-//        if (entity->isVisible()) {
-//           // entity->render();
-//        }
-//    }
-//}
-
 vector<shared_ptr<Entity>> EntityManager::find(const string& tag) const {
     vector<shared_ptr<Entity>> ret;
     for (auto& entity : list) {

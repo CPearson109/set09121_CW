@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "Animation.h"
 #include "maths.h" // Include this here if it's required for the Component or Entity
+#include "EntityStats.h"
 #include <memory>
 #include <set>
 #include <vector>
@@ -126,9 +127,21 @@ struct EntityManager {
 
 class Mage : public Entity {
 public:
-    Mage(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture);
+    Mage(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, const EntityStats& stats); // Add EntityStats parameter
+
     void  Update(const float& dt, sf::RenderWindow& window) override;
     void FireBullet(bool mode, const sf::Vector2f& direction, const sf::Vector2f& pos);
+
+
+    // Method to get the current stats of the Mage
+    EntityStats getStats() const {
+        return _entityStats;
+    }
+
+    // Method to set the stats of the Mage
+    void setStats(const EntityStats& newStats) {
+        _entityStats = newStats;
+    }
 
 
 private:
@@ -141,6 +154,9 @@ private:
     enum class Direction { Up, Down, Left, Right };
     Direction currentDirection = Direction::Down; // Default direction
 
+    //variable to store stats
+    EntityStats _entityStats;
+
     // Speed of the mage
     float speed;
     float _shootTimer;
@@ -150,7 +166,7 @@ private:
 
 class Slime : public Entity {
 public:
-    Slime(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, Entity& player, float speed);
+    Slime(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, Entity& player, float speed, const EntityStats& stats);
     void Update(const float& dt, sf::RenderWindow& window) override;
     void FireBullet(bool mode, const sf::Vector2f& direction, const sf::Vector2f& pos);
     void onBulletHit();
@@ -164,6 +180,9 @@ private:
     Entity& _player;
     float _shootTimer;
     int _health;
+
+    //variable to store stats
+    EntityStats _entityStats;
 
 };
 
