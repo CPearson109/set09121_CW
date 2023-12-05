@@ -18,7 +18,9 @@ unsigned char Bullet::bulletPointer = 0; // A static pointer to keep track of bu
 Bullet Bullet::bullets[64];             // Static array to store bullets
 std::vector<Entity*> entities;            // Global vector to store entities
 const float Bullet::bulletSpeed = 200.0f;  // Assign a value (e.g., 200.0f)
+
 std::vector<Slime>* Bullet::_slimes = nullptr;
+
 
 
 // Default constructor for Bullet class, initializes a bullet as inactive and off-screen
@@ -114,7 +116,7 @@ bool Bullet::isActive() const {
     return _active;
 }
 
-// Custom method to check collisions for a specific bullet
+
 void Bullet::checkCollisions() {
     // Get the bullet's current position
     sf::Vector2f bulletPosition = getPosition();

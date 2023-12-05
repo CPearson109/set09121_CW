@@ -3,6 +3,8 @@
 #include "Game.h"
 #include "Bullet.h"
 #include "LevelSystem.h"
+#include "EntityStats.h"
+
 
 using namespace sf;
 using namespace std;
@@ -33,8 +35,9 @@ Entity::~Entity() {}
 
 
 
-Slime::Slime(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, Entity& player, float speed)
-    : Entity(ir, pos, texture),
+Slime::Slime(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, Entity& player, float speed, const EntityStats& slimeStats)
+    : Entity(ir, pos, texture), _entityStats(slimeStats),  // Initialize _entityStats
+
     _player(player),
     idleAnimation(0, 0, 49, 62, 3, 0.2f),
     attackAnimation(0, 62, 49, 62, 3, 0.2f),
@@ -42,10 +45,12 @@ Slime::Slime(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, Entity& pla
     _speed(speed),
     _shootTimer(0.0f),
     _health(100)
+
 {
     currentAnimation = &idleAnimation;
     setOrigin(ir.width / 2.0f, ir.height / 2.0f);
 }
+
 
 void Slime::onBulletHit() {
     _health -= 50; // Reduce health by 50
@@ -163,8 +168,9 @@ void Slime::Update(const float& dt, sf::RenderWindow& window) {
 
 
 
-Mage::Mage(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture)
-    : Entity(ir, pos, texture),
+Mage::Mage(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, const EntityStats& mageStats)
+    : Entity(ir, pos, texture), _entityStats(mageStats), // Initialize _entityStats
+
     walkDownAnimation(0, 0, 35, 37, 4, 0.2f), // Set the sprite size to 35x37 pixels
     walkUpAnimation(0, 38, 35, 37, 4, 0.2f), // Assuming each row is 37 pixels apart
     walkRightAnimation(0, 75, 35, 37, 4, 0.2f), // 2 rows down
@@ -182,6 +188,7 @@ Mage::Mage(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture)
     setTexture(spritesheet);
     setTextureRect(ir);
 }
+
 
 void Mage::FireBullet(bool mode, const sf::Vector2f& direction, const sf::Vector2f& pos) {
 

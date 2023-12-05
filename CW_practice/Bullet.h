@@ -28,9 +28,6 @@ public:
 	bool getMode() const;
 	static const float bulletSpeed;  // Declaration
 
-	static void setSlimesReference(std::vector<Slime>& slimesRef) {
-		_slimes = &slimesRef;
-	}
 
 private:
 	// ... other members ...
@@ -38,6 +35,7 @@ private:
 	void checkCollisions();
 
 	static std::vector<Slime>* _slimes;
+
 
 
 
