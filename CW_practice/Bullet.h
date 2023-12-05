@@ -3,6 +3,9 @@
 #include <SFML/Graphics.hpp>
 #include "game.h"
 #include "Entity.h"
+#include "Slime.h"
+#include "Mage.h"
+
 
 class Bullet : public sf::Sprite {
 public:
@@ -13,7 +16,7 @@ public:
 	//Render's all bullets (uses a similar trick to the ship renderer but on the bullet pool)
 	static void Render(sf::RenderWindow& window);
 	//Chose an inactive bullet and use it.
-	static void Fire(const sf::Vector2f& pos, bool mode, const sf::Vector2f& direction);
+	static void Fire(const sf::Vector2f& pos, bool mode, const sf::Vector2f& direction, bool isPlayerBullet);
 
 	//Set all the bullets to -100, -100, set the spritesheet, set origin
 	static void Init();
@@ -22,7 +25,7 @@ public:
 	bool isActive() const; // Declare isActive method
 
 	~Bullet() = default;
-	void activate(const sf::Vector2f& pos, bool mode, const sf::Vector2f& direction);
+	void activate(const sf::Vector2f& pos, bool mode, const sf::Vector2f& direction, bool isPlayerBullet);
 
 	void deactivate();
 	bool getMode() const;
@@ -32,6 +35,12 @@ public:
 		_slimes = &slimesRef;
 	}
 
+	void setIsPlayerBullet(bool isPlayer) { _isPlayerBullet = isPlayer; }
+
+	bool getIsPlayerBullet() const { return _isPlayerBullet; }
+
+	static void setMage(Mage* mage) { _mage = mage; }
+
 private:
 	// ... other members ...
 	sf::Vector2f _direction; 
@@ -39,8 +48,9 @@ private:
 
 	static std::vector<Slime>* _slimes;
 
+	bool _isPlayerBullet = false;
 
-
+	static Mage* _mage;
 
 protected:
 	static unsigned char bulletPointer;

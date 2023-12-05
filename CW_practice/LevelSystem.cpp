@@ -141,6 +141,7 @@ void LevelSystem::buildSprites() {
 
 LevelSystem::TILE LevelSystem::getTile(sf::Vector2ul p) {
     if (p.x >= _width || p.y >= _height) {
+        std::cout << "Requested tile at (" << p.x << ", " << p.y << ") in a level of size " << _width << "x" << _height << std::endl;
         throw std::out_of_range("Tile out of range: " + std::to_string(p.x) + "," + std::to_string(p.y));
     }
     return _tiles[(p.y * _width) + p.x];

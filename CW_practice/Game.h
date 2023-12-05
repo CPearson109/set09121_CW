@@ -1,5 +1,6 @@
 // game.h
 #pragma once
+
 #include <SFML/Graphics.hpp>
 #include <vector>
 
@@ -16,3 +17,4 @@ extern std::vector<Bullet*> bullets;
 extern sf::Texture bulletTexture;
 
 extern Mage* playerMage; // Declare playerMage
+

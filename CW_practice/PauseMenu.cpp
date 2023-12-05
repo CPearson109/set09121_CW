@@ -98,8 +98,8 @@ void PauseMenu::Display(sf::RenderWindow& window) {
 
     float offsetY = textBackground.getPosition().y + textBackground.getGlobalBounds().height + 300;
     for (auto& option : upgradeOptions) {
-        option.text.setPosition(100, offsetY);
-        option.button.setPosition(400, offsetY);
+        option.text.setPosition(50, offsetY);
+        option.button.setPosition(500, offsetY);
         window.draw(option.text);
         window.draw(option.button);
         offsetY += 40; // Increment y position for the next option

@@ -2,12 +2,12 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cmath>
-
-// Include custom header files for Bullet, Game, and Entity classes
 #include "Bullet.h"
 #include "Game.h"
 #include "Entity.h"
 #include "LevelSystem.h"
+#include "Slime.h"
+#include "Mage.h"
 
 // Use the namespaces from SFML and standard library for convenience
 using namespace sf;
@@ -20,11 +20,12 @@ std::vector<Entity*> entities;            // Global vector to store entities
 const float Bullet::bulletSpeed = 200.0f;  // Assign a value (e.g., 200.0f)
 
 std::vector<Slime>* Bullet::_slimes = nullptr;
+Mage* Bullet::_mage = nullptr;
 
 
 
 // Default constructor for Bullet class, initializes a bullet as inactive and off-screen
-Bullet::Bullet() : _active(false), _mode(false) {
+Bullet::Bullet() : _active(false), _mode(false), _isPlayerBullet(false) {
     setTexture(bulletTexture); // Ensure texture is set
     setTextureRect(sf::IntRect(0, 0, 32, 32)); // Set the part of the texture to display
     setOrigin(0, 0);
@@ -48,10 +49,6 @@ void Bullet::Update(const float& dt) {
             if (bullet.isActive()) {   // If the bullet is active
                 // Determine bullet movement direction based on its mode
                 float direction = bullet.getMode() ? 1.0f : -1.0f;
-                // Move the bullet vertically
-                bullet.move(0, dt * 200.0f * direction);
-
-                //std::cout << "Updating active bullet. New position: " << bullet.getPosition().x << ", " << bullet.getPosition().y << std::endl;
 
 
                 // Check if the bullet is off-screen and deactivate it
@@ -97,13 +94,13 @@ void Bullet::Init() {
 }
 
 // Static method to fire a bullet
-void Bullet::Fire(const sf::Vector2f& pos, const bool mode, const sf::Vector2f& direction) {
+void Bullet::Fire(const sf::Vector2f& pos, const bool mode, const sf::Vector2f& direction, bool isPlayerBullet) {
     for (unsigned char i = 0; i < 64; ++i) {
         Bullet& bullet = bullets[bulletPointer];
         bulletPointer = (bulletPointer + 1) % 64; // Cycle through the bullets
 
         if (!bullet.isActive()) {
-            bullet.activate(pos, mode, direction); // Reactivate the bullet
+            bullet.activate(pos, mode, direction, isPlayerBullet); // Reactivate the bullet
             return; // Exit the method after firing a bullet
         }
     }
@@ -132,28 +129,54 @@ void Bullet::checkCollisions() {
     }
 
     // Position-based collision detection with slimes
-    const float collisionThreshold = 15.0f; // Define the threshold for considering a collision
+    const float collisionThreshold = 20.0f; // Define the threshold for considering a collision
 
     for (Slime& slime : *_slimes) { // Loop through each slime
         sf::Vector2f slimePosition = slime.getPosition();
+
         if (std::abs(bulletPosition.x - slimePosition.x) <= collisionThreshold &&
             std::abs(bulletPosition.y - slimePosition.y) <= collisionThreshold) {
 
+            std::cout << "enemy has been hit" << std::endl;
+
             // A collision is detected
-            slime.onBulletHit(); // Call the collision handling method for the slime
+            slime.onBulletHit( _isPlayerBullet);
+
+            if(_isPlayerBullet){
             deactivate(); // Deactivate the bullet
             return; // Return early as the bullet has collided and is no longer active
+            }
         }
     }
+
+    if (_mage != nullptr) {
+        sf::Vector2f magePosition = _mage->getPosition();
+
+        if (std::abs(bulletPosition.x - magePosition.x) <= collisionThreshold &&
+            std::abs(bulletPosition.y - magePosition.y) <= collisionThreshold) {
+
+            std::cout << "player has been hit" << std::endl;
+
+            // Collision with Mage detected
+            _mage->onBulletHit(_isPlayerBullet); // Method to handle the mage getting hit
+
+            if (!_isPlayerBullet) {
+                deactivate(); // Deactivate the bullet
+                return; // Return early as the bullet has collided and is no longer active
+            }
+        }
+    }
+
 }
 
 
 // Method to activate a bullet
-void Bullet::activate(const sf::Vector2f& pos, bool mode, const sf::Vector2f& direction) {
+void Bullet::activate(const sf::Vector2f& pos, bool mode, const sf::Vector2f& direction, bool isPlayerBullet) {
     setPosition(pos);
     _mode = mode;
     _active = true;
     _direction = direction;
+    _isPlayerBullet = isPlayerBullet;
 
     float angle = atan2(direction.y, direction.x) * 180 / 3.141;
     setRotation(angle);
