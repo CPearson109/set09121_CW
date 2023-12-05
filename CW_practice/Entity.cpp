@@ -49,16 +49,9 @@ Slime::Slime(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, Entity& pla
 
 void Slime::onBulletHit() {
     _health -= 50; // Reduce health by 50
-
+    std::cerr << _health << std::endl;
     if (_health <= 0) {
-        // Destroy the Slime
-        // For example, you might mark the Slime as inactive, remove it from the game world, 
-        // or add it to a list of entities to be deleted
-        //this->markForDeletion(); // This is a hypothetical function
-        // OR
-        // Game::removeEntity(this); // If you have a global game manager
-        // OR
-        // setActive(false); // If your entities can be deactivated
+        _isActive = false;
     }
 }
 
@@ -77,10 +70,9 @@ void Slime::FireBullet(bool mode, const sf::Vector2f& direction, const sf::Vecto
 
 void Slime::Update(const float& dt, sf::RenderWindow& window) {
     // Update the current animation
-    currentAnimation->Update(dt);
-    currentAnimation->ApplyToSprite(*this);
+    //currentAnimation->Update(dt);
+    //currentAnimation->ApplyToSprite(*this);
 
-    std::cout << "here" << std::endl;
 
     sf::Vector2f previousPosition = getPosition();
 

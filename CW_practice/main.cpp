@@ -98,7 +98,6 @@ int main() {
     myMage.setTexture(mageSpritesheet);
 
     // Vector to store all slimes
-    std::vector<Slime> slime;
 
     // Create a Slime for each start position
     for (const auto& pos : enemyPositions) {
@@ -106,6 +105,7 @@ int main() {
         slimes.back().setTexture(slimeSpritesheet);
     }
 
+    Bullet::setSlimesReference(slimes);
 
     // Load the background image
     sf::Texture backgroundTexture;
@@ -152,7 +152,6 @@ int main() {
         }
         prevPKeyPressed = pKeyCurrentlyPressed;
 
-
         // Update the previous key state
         prevPKeyPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::P);
 
@@ -164,7 +163,9 @@ int main() {
             myMage.Update(dt, window);
             Bullet::Update(dt);
             for (auto& slime : slimes) {
-                slime.Update(dt, window); // Call Update on each Slime object
+                if (slime.isActive()) {
+                    slime.Update(dt, window);
+                }
             }
             
             // Get the current view from the window
@@ -174,7 +175,9 @@ int main() {
             window.draw(backgroundSprite);
             LevelSystem::Render(window);
             for (auto& slime : slimes) {
-                window.draw(slime); // Call Update on each Slime object
+                if (slime.isActive()) {
+                    window.draw(slime);
+                }
             }
             window.draw(myMage);
             Bullet::Render(window);

@@ -154,6 +154,7 @@ public:
     void Update(const float& dt, sf::RenderWindow& window) override;
     void FireBullet(bool mode, const sf::Vector2f& direction, const sf::Vector2f& pos);
     void onBulletHit();
+    bool isActive() const {return _isActive;}
 
 private:
     Animation* currentAnimation; // Declare currentAnimation as a pointer to Animation
@@ -164,6 +165,7 @@ private:
     Entity& _player;
     float _shootTimer;
     int _health;
+    bool _isActive = true;
 
 };
 
