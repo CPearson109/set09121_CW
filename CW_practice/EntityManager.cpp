@@ -18,6 +18,7 @@ void EntityManager::update(const float& dt, sf::RenderWindow& window) {
 }
 
 
+
 vector<shared_ptr<Entity>> EntityManager::find(const string& tag) const {
     vector<shared_ptr<Entity>> ret;
     for (auto& entity : list) {

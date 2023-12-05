@@ -2,6 +2,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "game.h"
+#include "Entity.h"
 
 class Bullet : public sf::Sprite {
 public:
@@ -27,12 +28,15 @@ public:
 	bool getMode() const;
 	static const float bulletSpeed;  // Declaration
 
+
 private:
 	// ... other members ...
 	sf::Vector2f _direction; 
 	void checkCollisions();
 
-	// ... other members ...
+	static std::vector<Slime>* _slimes;
+
+
 
 
 protected:

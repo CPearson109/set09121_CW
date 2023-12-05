@@ -19,6 +19,7 @@ sf::Texture coinSpriteSheet; //Texture for coin
 sf::Texture bulletTexture; // Texture for the bullet 
 sf::Font globalFont;
 sf::Text coinText;
+sf::Texture bulletTexture; // Texture for the bullet
 
 Mage* playerMage = nullptr; // Initialize the static member
 std::vector<Bullet*> bullets;
@@ -41,7 +42,7 @@ void InitializeBulletPool() {
 
 void Load() {
     // Load the Mage spritesheet
-    if (!mageSpritesheet.loadFromFile("D:/year1_game - Copy/res/img/mage.png")) {
+    if (!mageSpritesheet.loadFromFile("D:/year1_game/res/img/mage.png")) {
         std::cerr << "Failed to load Mage spritesheet." << std::endl;
     }
     else {
@@ -49,6 +50,7 @@ void Load() {
     }
 
     // Load the Slime spritesheet
+
     if (!slimeSpritesheet.loadFromFile("D:/year1_game - Copy/res/img/slime_brown.png")) {
         std::cerr << "Failed to load Slime spritesheet." << std::endl;
     }
@@ -58,11 +60,13 @@ void Load() {
 
     // Load the bullet texture using bulletTexture
     if (!bulletTexture.loadFromFile("D:/year1_game - Copy/res/img/Fireball-1.png")) {
+
         std::cerr << "Failed to load bullet texture." << std::endl;
     }
     else {
         std::cout << "Bullet texture loaded successfully." << std::endl;
     }
+
 
     if (!coinSpriteSheet.loadFromFile("D:/year1_game - Copy/res/img/Gold_Coin.png")) {
         std::cerr << "Failed to load coin sprite sheet." << std::endl;
@@ -70,6 +74,7 @@ void Load() {
     else {
         std::cout << "Coin spritesheet loaded successfully." << std::endl;
     }
+
 }
 
 
@@ -86,10 +91,10 @@ int main() {
 
     int score = 100; // Initialize score variable
 
-
     // Load the background image for the pause menu
     sf::Texture pauseMenuBackgroundTexture;
     if (!pauseMenuBackgroundTexture.loadFromFile("D:/year1_game - Copy/res/img/book_pages.png")) {
+
         std::cerr << "Failed to load pause menu background image." << std::endl;
         return 1;
     }
@@ -100,7 +105,6 @@ int main() {
         return 1; // Or handle the error as needed 
     }
      
-
 
     //stats
     pauseMenu.setFont(globalFont);
@@ -178,10 +182,27 @@ int main() {
         slimes.back().setTexture(slimeSpritesheet);
     }
 
+    std::vector<sf::Vector2f> enemyPositions = LevelSystem::getAllStartTilePositions();
+    std::vector<Slime> slimes;
+
+    // Create an instance of the Mage
+    Mage myMage(sf::IntRect(0, 0, 35, 37), startPos, mageSpritesheet);
+    myMage.setTexture(mageSpritesheet);
+
+    // Vector to store all slimes
+
+    // Create a Slime for each start position
+    for (const auto& pos : enemyPositions) {
+        slimes.emplace_back(sf::IntRect(0, 0, 49, 62), pos, slimeSpritesheet, myMage, 50.f);
+        slimes.back().setTexture(slimeSpritesheet);
+    }
+
+    Bullet::setSlimesReference(slimes);
 
     // Load the background image
     sf::Texture backgroundTexture;
     if (!backgroundTexture.loadFromFile("D:/year1_game - Copy/res/img/2nd_map.png")) {
+
         std::cerr << "Failed to load background image." << std::endl;
         return 1;
     }
@@ -205,7 +226,6 @@ int main() {
     // Variable to track whether the 'P' key was pressed in the previous frame
     static bool prevPKeyPressed = false;
 
-    
 
     while (window.isOpen()) {
         
@@ -222,6 +242,8 @@ int main() {
         sf::FloatRect coinBounds = coin.getGlobalBounds(); 
         coinText.setPosition(coinBounds.left + coinBounds.width + 10, coinBounds.top + 10); 
 
+
+        window.clear();
 
         // Update the coin
         coin.Update(dt, window); 
@@ -256,16 +278,6 @@ int main() {
 
 
         window.clear();
-
-        //gamestates
-        if (gameState == GameState::Playing) {
-            // Place all update logic here
-            pauseMenu.HandleInput(window, score); // Pass the score as reference 
-            myMage.Update(dt, window);
-            Bullet::Update(dt);
-            for (auto& slime : slimes) {
-                slime.Update(dt, window); // Call Update on each Slime object
-            }
           
 
             // Get the current view from the window
@@ -277,18 +289,34 @@ int main() {
             //Draw the coin 
             window.draw(coinText); 
             window.draw(coin);
-
-            //tiles
-            LevelSystem::Render(window);
-            for (auto& slime : slimes) {
-                window.draw(slime);
-            }
-
-            //mage and bullet
-            window.draw(myMage);
-            Bullet::Render(window);
              
             
+        //gamestates
+        if (gameState == GameState::Playing) {
+            // Place all update logic here
+            pauseMenu.HandleInput(window, score); // Pass the score as reference 
+            myMage.Update(dt, window);
+            Bullet::Update(dt);
+            for (auto& slime : slimes) {
+                if (slime.isActive()) {
+                    slime.Update(dt, window);
+                }
+            }
+            
+            // Get the current view from the window
+            const sf::View& currentView = window.getView();
+
+            // Draw gameplay elements
+            window.draw(backgroundSprite);
+            LevelSystem::Render(window);
+            for (auto& slime : slimes) {
+                if (slime.isActive()) {
+                    window.draw(slime);
+                }
+            }
+            window.draw(myMage);
+            Bullet::Render(window);
+          
 
         }
         else if (gameState == GameState::Paused) {
@@ -305,6 +333,7 @@ int main() {
             window.draw(coin); // Draw the coin  
              
         }
+
 
         window.display();
        

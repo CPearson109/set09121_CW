@@ -127,8 +127,8 @@ struct EntityManager {
 
 class Mage : public Entity {
 public:
-    Mage(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, const EntityStats& stats); // Add EntityStats parameter
 
+    Mage(sf::IntRect ir, sf::Vector2f pos, sf::Texture& texture, const EntityStats& stats); // Add EntityStats parameter
     void  Update(const float& dt, sf::RenderWindow& window) override;
     void FireBullet(bool mode, const sf::Vector2f& direction, const sf::Vector2f& pos);
 
@@ -142,7 +142,6 @@ public:
     void setStats(const EntityStats& newStats) {
         _entityStats = newStats;
     }
-
 
 private:
     Animation walkDownAnimation;
@@ -170,7 +169,6 @@ public:
     void Update(const float& dt, sf::RenderWindow& window) override;
     void FireBullet(bool mode, const sf::Vector2f& direction, const sf::Vector2f& pos);
     void onBulletHit();
-
 private:
     Animation* currentAnimation; // Declare currentAnimation as a pointer to Animation
     Animation idleAnimation;
@@ -180,9 +178,9 @@ private:
     Entity& _player;
     float _shootTimer;
     int _health;
-
-    //variable to store stats
     EntityStats _entityStats;
+    bool _isActive = true;
+
 
 };
 

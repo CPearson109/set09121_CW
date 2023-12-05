@@ -19,6 +19,9 @@ Bullet Bullet::bullets[64];             // Static array to store bullets
 std::vector<Entity*> entities;            // Global vector to store entities
 const float Bullet::bulletSpeed = 200.0f;  // Assign a value (e.g., 200.0f)
 
+std::vector<Slime>* Bullet::_slimes = nullptr;
+
+
 
 // Default constructor for Bullet class, initializes a bullet as inactive and off-screen
 Bullet::Bullet() : _active(false), _mode(false) {
@@ -72,20 +75,6 @@ void Bullet::Update(const float& dt) {
     return _mode;
 }
 
- void Bullet::checkCollisions() {
-     // Get the bullet's current position
-     sf::Vector2f bulletPosition = getPosition();
-
-     // Calculate the tile position for the bullet
-     sf::Vector2ul tilePos(static_cast<unsigned>(bulletPosition.x / LevelSystem::getTileSize()),
-         static_cast<unsigned>(bulletPosition.y / LevelSystem::getTileSize()));
-
-     // Check if the tile is a wall
-     if (LevelSystem::getTile(tilePos) == LevelSystem::WALL) {
-         deactivate(); // Deactivate the bullet if it hits a wall
-     }
- }
-
 
 // Render method to draw active bullets on the window
 void Bullet::Render(RenderWindow& window) {
@@ -127,18 +116,37 @@ bool Bullet::isActive() const {
     return _active;
 }
 
-// Custom method to check collisions for a specific bullet
-void Bullet::checkCollisions(Bullet& bullet) {
-    FloatRect boundingBox = bullet.getGlobalBounds(); // Get bullet's bounding box
-    for (auto* entity : entities) {
-        // Skip certain entities based on bullet's mode and entity type
-        if ((bullet._mode && entity != playerMage) || (!bullet._mode && entity == playerMage)) {
-            continue;
-        }
 
-      
+void Bullet::checkCollisions() {
+    // Get the bullet's current position
+    sf::Vector2f bulletPosition = getPosition();
+
+    // Calculate the tile position for the bullet
+    sf::Vector2ul tilePos(static_cast<unsigned>(bulletPosition.x / LevelSystem::getTileSize()),
+        static_cast<unsigned>(bulletPosition.y / LevelSystem::getTileSize()));
+
+    // Check if the tile is a wall
+    if (LevelSystem::getTile(tilePos) == LevelSystem::WALL) {
+        deactivate(); // Deactivate the bullet if it hits a wall
+        return; // Return early as the bullet is no longer active
+    }
+
+    // Position-based collision detection with slimes
+    const float collisionThreshold = 15.0f; // Define the threshold for considering a collision
+
+    for (Slime& slime : *_slimes) { // Loop through each slime
+        sf::Vector2f slimePosition = slime.getPosition();
+        if (std::abs(bulletPosition.x - slimePosition.x) <= collisionThreshold &&
+            std::abs(bulletPosition.y - slimePosition.y) <= collisionThreshold) {
+
+            // A collision is detected
+            slime.onBulletHit(); // Call the collision handling method for the slime
+            deactivate(); // Deactivate the bullet
+            return; // Return early as the bullet has collided and is no longer active
+        }
     }
 }
+
 
 // Method to activate a bullet
 void Bullet::activate(const sf::Vector2f& pos, bool mode, const sf::Vector2f& direction) {
